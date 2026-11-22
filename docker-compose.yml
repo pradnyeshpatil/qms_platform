@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-qms}
+      POSTGRES_USER: ${POSTGRES_USER:-qms}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-qms}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-qms} -d ${POSTGRES_DB:-qms}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine   # not used by the skeleton yet; reserved for Celery/rate limiting
+
+  backend:
+    build: ./backend
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-qms}
+      POSTGRES_USER: ${POSTGRES_USER:-qms}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-qms}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-dev-insecure-change-me}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-1}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,backend,testserver}
+      DJANGO_CSRF_TRUSTED_ORIGINS: ${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:5173,http://localhost:8000}
+      REDIS_URL: redis://redis:6379/0
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      INVITATION_TTL_DAYS: ${INVITATION_TTL_DAYS:-7}
+      TRIAL_DAYS: ${TRIAL_DAYS:-14}
+    volumes:
+      - ./backend:/app          # hot reload (runserver autoreload)
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  frontend:
+    build: ./frontend
+    environment:
+      VITE_PROXY_TARGET: http://backend:8000
+    volumes:
+      - ./frontend:/app         # hot reload (Vite HMR)
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
