@@ -54,9 +54,3 @@ export function RequirePermission({ permission, children }: { permission: string
     </Card>
   )
 }
-
-export function HomeRedirect() {
-  const { data } = useMe()
-  const slug = data?.memberships[0]?.company.slug
-  return slug ? <Navigate to={`/${slug}/dashboard`} replace /> : <p className="p-10">No company membership found.</p>
-}

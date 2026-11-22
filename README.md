@@ -17,7 +17,7 @@ docker compose exec backend python manage.py seed_demo   # in a 2nd terminal
 
 | What | URL |
 |---|---|
-| App | http://localhost:5173 |
+| Public website (signed-out) / app (signed-in) | http://localhost:5173 |
 | API docs (Swagger) | http://localhost:8000/api/docs/ |
 | Django admin | http://localhost:8000/admin/ |
 

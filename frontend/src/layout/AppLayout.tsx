@@ -47,7 +47,7 @@ export function AppLayout() {
   const logout = async () => {
     await api('/api/v1/auth/logout/', { method: 'POST' })
     qc.clear()
-    nav('/login')
+    nav('/') // back to the public website
   }
 
   return (

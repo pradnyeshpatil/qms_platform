@@ -1,0 +1,82 @@
+/* Public website. Everything is scoped under .lp so it cannot leak into the app. */
+.lp { --lp-ease: cubic-bezier(0.22, 1, 0.36, 1); --lp-blue: #2563eb; --lp-violet: #7c3aed; --lp-cyan: #06b6d4; }
+html.lp-smooth { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+
+/* ---- scroll reveal ---- */
+.lp-reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s var(--lp-ease), transform .8s var(--lp-ease); transition-delay: var(--d, 0ms); will-change: opacity, transform; }
+.lp-reveal[data-v="left"] { transform: translateX(-40px); }
+.lp-reveal[data-v="right"] { transform: translateX(40px); }
+.lp-reveal[data-v="scale"] { transform: scale(.92); }
+.lp-reveal.lp-in { opacity: 1; transform: none; }
+
+/* ---- text + background effects ---- */
+@keyframes lp-gradient { to { background-position: 200% center; } }
+.lp-grad-text { background: linear-gradient(90deg, #2563eb, #7c3aed, #06b6d4, #2563eb); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: lp-gradient 6s linear infinite; }
+@keyframes lp-blob { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(50px,-40px) scale(1.12); } 66% { transform: translate(-40px,30px) scale(.94); } }
+.lp-blob { position: absolute; border-radius: 9999px; filter: blur(70px); opacity: .55; animation: lp-blob 16s ease-in-out infinite; pointer-events: none; }
+.lp-grid { background-image: linear-gradient(to right, rgba(15,23,42,.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(15,23,42,.06) 1px, transparent 1px); background-size: 44px 44px; -webkit-mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%); mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%); }
+.lp-grid-dark { background-image: linear-gradient(to right, rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.06) 1px, transparent 1px); background-size: 44px 44px; -webkit-mask-image: radial-gradient(ellipse at 50% 50%, #000 20%, transparent 70%); mask-image: radial-gradient(ellipse at 50% 50%, #000 20%, transparent 70%); }
+@keyframes lp-shimmer { to { transform: translateX(120%); } }
+.lp-shine { position: relative; overflow: hidden; }
+.lp-shine::after { content: ''; position: absolute; inset: 0; transform: translateX(-120%); background: linear-gradient(100deg, transparent 20%, rgba(255,255,255,.55) 50%, transparent 80%); animation: lp-shimmer 3.6s ease-in-out infinite; }
+
+/* ---- motion helpers ---- */
+@keyframes lp-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+.lp-float { animation: lp-float 6s ease-in-out infinite; animation-delay: var(--d, 0s); }
+@keyframes lp-ping { 75%,100% { transform: scale(2.4); opacity: 0; } }
+.lp-ping { animation: lp-ping 1.8s cubic-bezier(0,0,.2,1) infinite; }
+@keyframes lp-in-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.lp-swap { animation: lp-in-up .55s var(--lp-ease) both; }
+@keyframes lp-pop { 0% { transform: scale(.4); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+.lp-pop { animation: lp-pop .45s var(--lp-ease) both; }
+
+/* ---- hero product mock ---- */
+.lp-row, .lp-bar, .lp-fade { opacity: 0; }
+@keyframes lp-row-in { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: none; } }
+@keyframes lp-bar-up { from { transform: scaleY(0); opacity: 1; } to { transform: scaleY(1); opacity: 1; } }
+.lp-play .lp-row { animation: lp-row-in .7s var(--lp-ease) forwards; animation-delay: var(--d, 0s); }
+.lp-play .lp-bar { transform-origin: bottom; animation: lp-bar-up .9s var(--lp-ease) forwards; animation-delay: var(--d, 0s); }
+.lp-play .lp-fade { animation: lp-in-up .8s var(--lp-ease) forwards; animation-delay: var(--d, 0s); }
+@keyframes lp-toast { 0% { opacity: 0; transform: translateY(18px) scale(.95); } 8%, 42% { opacity: 1; transform: none; } 52%, 100% { opacity: 0; transform: translateY(-10px) scale(.98); } }
+.lp-toast { opacity: 0; animation: lp-toast 9s ease-in-out infinite; animation-delay: var(--d, 0s); }
+
+/* ---- lifecycle stepper ---- */
+.lp-track-fill { transition: width .7s var(--lp-ease); }
+
+/* ---- spotlight cards ---- */
+.lp-spot { position: relative; overflow: hidden; transition: transform .35s var(--lp-ease), box-shadow .35s, border-color .35s; }
+.lp-spot::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s; background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(59,130,246,.16), transparent 42%); }
+.lp-spot:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -18px rgba(37,99,235,.35); border-color: rgba(37,99,235,.35); }
+.lp-spot:hover::before { opacity: 1; }
+
+/* ---- tenant isolation animation ---- */
+@keyframes lp-packet-l { 0% { left: 6%; opacity: 0; } 8% { opacity: 1; } 46% { left: 44%; opacity: 1; } 54% { left: 44%; opacity: 0; } 100% { left: 44%; opacity: 0; } }
+@keyframes lp-packet-r { 0% { right: 6%; opacity: 0; } 8% { opacity: 1; } 46% { right: 44%; opacity: 1; } 54% { right: 44%; opacity: 0; } 100% { right: 44%; opacity: 0; } }
+.lp-packet-l, .lp-packet-r { position: absolute; width: 10px; height: 10px; border-radius: 9999px; }
+.lp-packet-l { animation: lp-packet-l 3.6s ease-in infinite; animation-delay: var(--d, 0s); }
+.lp-packet-r { animation: lp-packet-r 3.6s ease-in infinite; animation-delay: var(--d, 0s); }
+@keyframes lp-block { 0%, 44% { opacity: 0; transform: translate(-50%, 4px) scale(.9); } 50%, 72% { opacity: 1; transform: translate(-50%, 0) scale(1); } 82%, 100% { opacity: 0; transform: translate(-50%, -6px); } }
+.lp-block { animation: lp-block 3.6s ease-in-out infinite; animation-delay: var(--d, 0s); opacity: 0; }
+@keyframes lp-shield { 0%, 44%, 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); } 50% { box-shadow: 0 0 0 14px rgba(52,211,153,.18); } }
+.lp-shield { animation: lp-shield 3.6s ease-in-out infinite; }
+
+/* ---- onboarding flow ---- */
+.lp-flow > li { opacity: .35; transition: opacity .5s, transform .5s var(--lp-ease); transform: translateX(-6px); }
+.lp-flow.lp-in > li { opacity: 1; transform: none; transition-delay: calc(var(--i) * 450ms); }
+.lp-flow.lp-in > li .lp-tick { animation: lp-pop .45s var(--lp-ease) both; animation-delay: calc(var(--i) * 450ms + 250ms); }
+.lp-tick { opacity: 0; }
+
+/* ---- FAQ ---- */
+.lp details > summary { list-style: none; cursor: pointer; }
+.lp details > summary::-webkit-details-marker { display: none; }
+.lp details[open] .lp-chev { transform: rotate(180deg); }
+.lp details[open] > div { animation: lp-in-up .4s var(--lp-ease) both; }
+
+/* ---- accessibility: no motion for people who ask for none ---- */
+@media (prefers-reduced-motion: reduce) {
+  html.lp-smooth { scroll-behavior: auto; }
+  .lp *, .lp *::before, .lp *::after { animation: none !important; transition: none !important; }
+  .lp-reveal, .lp-row, .lp-bar, .lp-fade, .lp-tick, .lp-flow > li { opacity: 1 !important; transform: none !important; }
+  .lp-toast { opacity: 1; }
+  .lp-bar { transform: none !important; }
+}
