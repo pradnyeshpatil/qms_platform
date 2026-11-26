@@ -1,0 +1,2 @@
+# Optional: S3 / MinIO attachment storage (set ATTACHMENT_STORAGE=s3, see README)
+django-storages[s3]>=1.14
