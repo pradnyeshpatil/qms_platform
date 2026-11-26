@@ -15,6 +15,7 @@ PERMISSIONS: dict[str, str] = {
     "eight_d_reports.create": "Create 8D reports",
     "eight_d_reports.update": "Edit 8D reports",
     "eight_d_reports.approve": "Approve 8D reports",
+    "eight_d_reports.reopen": "Reopen approved / submitted 8D reports",
     "eight_d_reports.export": "Export 8D reports (PDF)",
     "tasks.view": "View tasks",
     "tasks.create": "Create tasks",

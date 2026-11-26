@@ -48,7 +48,7 @@ function FileCard({ a, index, canDelete, onDelete }: { a: Attachment; index: num
   )
 }
 
-export function FilesPanel({ complaintId }: { complaintId: string }) {
+export function FilesPanel({ complaintId, targetType = 'complaint' }: { complaintId: string; targetType?: string }) {
   const slug = useSlug()
   const can = useCan()
   const qc = useQueryClient()
@@ -58,7 +58,7 @@ export function FilesPanel({ complaintId }: { complaintId: string }) {
   const [jobs, setJobs] = useState<Job[]>([])
   const [deleting, setDeleting] = useState<Attachment | null>(null)
   const key = [slug, 'attachments', complaintId]
-  const q = useQuery({ queryKey: key, queryFn: () => api<Page<Attachment>>(tenantPath(slug, `attachments/${targetQuery(complaintId, { page_size: 100 })}`)) })
+  const q = useQuery({ queryKey: key, queryFn: () => api<Page<Attachment>>(tenantPath(slug, `attachments/${targetQuery(complaintId, { page_size: 100 }, targetType)}`)) })
   const refresh = () => { qc.invalidateQueries({ queryKey: key }); qc.invalidateQueries({ queryKey: [slug, 'activity', complaintId] }); qc.invalidateQueries({ queryKey: [slug, 'counts', complaintId] }) }
 
   const patchJob = (id: string, patch: Partial<Job>) => setJobs((j) => j.map((x) => (x.id === id ? { ...x, ...patch } : x)))
@@ -69,7 +69,7 @@ export function FilesPanel({ complaintId }: { complaintId: string }) {
       setJobs((j) => [...j, { id, name: file.name, progress: 0, error: problem ?? undefined }])
       if (problem) continue
       const form = new FormData()
-      form.set('target_type', 'complaint'); form.set('target_id', complaintId); form.set('file', file)
+      form.set('target_type', targetType); form.set('target_id', complaintId); form.set('file', file)
       upload(tenantPath(slug, 'attachments/'), form, (f) => patchJob(id, { progress: f }))
         .then(() => { patchJob(id, { progress: 1 }); refresh(); setTimeout(() => setJobs((j) => j.filter((x) => x.id !== id)), 900) })
         .catch((e: Error) => patchJob(id, { error: e.message }))

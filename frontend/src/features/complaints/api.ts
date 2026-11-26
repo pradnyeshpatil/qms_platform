@@ -59,5 +59,5 @@ export function refreshComplaint(qc: QueryClient, slug: string, complaint?: Comp
   if (complaint) qc.invalidateQueries({ queryKey: [slug, 'activity', complaint.id] })
 }
 
-export const targetQuery = (id: string, extra: Record<string, string | number> = {}) =>
-  qs({ target_type: 'complaint', target_id: id, ...extra })
+export const targetQuery = (id: string, extra: Record<string, string | number> = {}, targetType = 'complaint') =>
+  qs({ target_type: targetType, target_id: id, ...extra })

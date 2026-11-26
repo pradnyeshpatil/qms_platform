@@ -88,7 +88,7 @@ function Item({ c, index, myId, queryKey }: { c: Comment; index: number; myId?: 
   )
 }
 
-export function CommentsPanel({ complaintId }: { complaintId: string }) {
+export function CommentsPanel({ complaintId, targetType = 'complaint' }: { complaintId: string; targetType?: string }) {
   const slug = useSlug()
   const can = useCan()
   const qc = useQueryClient()
@@ -96,9 +96,9 @@ export function CommentsPanel({ complaintId }: { complaintId: string }) {
   const [body, setBody] = useState('')
   const [visibility, setVisibility] = useState<CommentVisibility>('internal')
   const key = [slug, 'comments', complaintId]
-  const q = useQuery({ queryKey: key, queryFn: () => api<Page<Comment>>(tenantPath(slug, `comments/${targetQuery(complaintId, { page_size: 100, ordering: '-created_at' })}`)) })
+  const q = useQuery({ queryKey: key, queryFn: () => api<Page<Comment>>(tenantPath(slug, `comments/${targetQuery(complaintId, { page_size: 100, ordering: '-created_at' }, targetType)}`)) })
   const post = useMutation({
-    mutationFn: () => api(tenantPath(slug, 'comments/'), { method: 'POST', body: { target_type: 'complaint', target_id: complaintId, body, visibility } }),
+    mutationFn: () => api(tenantPath(slug, 'comments/'), { method: 'POST', body: { target_type: targetType, target_id: complaintId, body, visibility } }),
     onSuccess: () => { setBody(''); qc.invalidateQueries({ queryKey: key }); qc.invalidateQueries({ queryKey: [slug, 'activity', complaintId] }); qc.invalidateQueries({ queryKey: [slug, 'counts', complaintId] }) },
   })
   const canWrite = can('comments.create')

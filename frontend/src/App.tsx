@@ -7,10 +7,14 @@ import { AuditLogPage } from '@/features/audit/AuditLogPage'
 import { AcceptInvitePage, ChangePasswordPage, LoginPage, RegisterPage } from '@/features/auth/AuthPages'
 import { ComplaintDetailPage } from '@/features/complaints/ComplaintDetailPage'
 import { ComplaintsPage } from '@/features/complaints/ComplaintsPage'
+import { CustomFieldsPage } from '@/features/settings/CustomFieldsPage'
 import { ComplaintSettingsPage } from '@/features/settings/ComplaintSettingsPage'
 import { CustomersPage } from '@/features/customers/CustomersPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { Home } from '@/features/landing/Home'
+import { EightDDetailPage } from '@/features/eight-d/EightDDetailPage'
+import { EightDListPage } from '@/features/eight-d/EightDListPage'
+import { TasksPage } from '@/features/tasks/TasksPage'
 import { EmployeesPage } from '@/features/employees/EmployeesPage'
 import { OrganizationPage } from '@/features/org/OrganizationPage'
 import { RolesPage } from '@/features/roles/RolesPage'
@@ -36,10 +40,14 @@ export default function App() {
               <Route path="customers" element={<CustomersPage />} />
               <Route path="complaints" element={<ComplaintsPage />} />
               <Route path="complaints/:id" element={<ComplaintDetailPage />} />
+              <Route path="eight-d" element={<EightDListPage />} />
+              <Route path="eight-d/:id" element={<EightDDetailPage />} />
+              <Route path="tasks" element={<TasksPage />} />
               <Route path="employees" element={<EmployeesPage />} />
               <Route path="roles" element={<RolesPage />} />
               <Route path="organization" element={<OrganizationPage />} />
               <Route path="settings/complaints" element={<ComplaintSettingsPage />} />
+              <Route path="settings/custom-fields" element={<CustomFieldsPage />} />
               <Route path="audit" element={<AuditLogPage />} />
             </Route>
           </Route>

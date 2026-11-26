@@ -56,11 +56,38 @@ Dependency rule: `core` ← `accounts/rbac/tenants` ← `employees` ← domain a
   A view with no declaration is **denied**. `ANY_MEMBER` is an explicit opt-in (plants/departments reads).
   `test_every_endpoint_declares_authorization` walks the URLconf and fails CI for any endpoint that is neither
   RBAC-protected nor marked `authz_exempt = "<reason>"`.
-* "Assigned" today = complaint owner (`Complaint.assigned_q`); extended with assignees in Phase 2.
+* "Assigned" per model: complaint = owner or assignee (`Complaint.assigned_q`); task = assignee; 8D report = team leader,
+  D1 team member or any section owner (`EightDReport.assigned_q`). Report rows and sections inherit the report's scope.
 * Lockout protection: the Company Admin role must keep `roles.manage` and `users.*`/`settings.manage` company-wide and
   cannot be deactivated; a company always keeps ≥1 active Company Admin (deactivate/role-change of the last one is refused);
   nobody can deactivate themselves.
 * Field-level rules on complaints: changing `owner` needs `complaints.assign`; moving into resolved/closed needs `complaints.close`.
+
+## 8D reports and tasks (Phase 3)
+
+* `eight_d_reports`: `EightDReport` header + `EightDSection` tracking rows (D0-D8) + one-to-one sections (D0, D2, D4, D8) +
+  child-row tables (team, containment, whys, fishbone, corrective, validations, preventive). Everything is a `TenantModel`.
+  Business rules live in `services.py` (views only translate HTTP).
+* Lifecycle is a fixed enum: draft -> in_progress -> pending_approval -> approved -> submitted -> closed. Editable only in
+  draft/in_progress. Approve and submit each write an immutable `ReportRevision` JSON snapshot (model refuses save/delete).
+  Reopen bumps `revision`; the old snapshots stay untouched.
+* Optimistic locking: every section/row has `version`; a conditional `UPDATE ... WHERE version=` makes concurrent saves
+  fail with `409 edit_conflict` instead of overwriting.
+* `tasks` depends on `eight_d_reports` (FK), never the reverse. An action row becomes a task via `source_type/source_id`;
+  `tasks.hooks.register_source` lets the 8D app stamp the row's completion date when the task finishes (skipped for locked reports).
+* Both apps register complaint closure checks (`complaints/closure.py`) and comment/attachment/activity targets
+  (`eight_d_report`, `eight_d_section`, `task`).
+
+## Custom fields (8D reports)
+
+* `custom_fields` app: `CustomFieldDefinition` (per company, scoped to the report header or one section D0-D8; types text, long text,
+  integer, decimal, date, dropdown, multi-select, checkbox, yes/no) + `CustomFieldDefinitionVersion` (every edit bumps `version`).
+  Keys are immutable; type cannot change once records hold the key; definitions are deactivated, never deleted; 50 active per scope.
+* Values live in the record's `custom_data` JSON (`EightDReport` for report level, `EightDSection` for D0-D8). Each record also stores
+  `custom_schema`, the definitions of its keys as of the last save, so old reports render and print unchanged after a field is edited or retired.
+* All validation is server-side (`custom_fields/validators.py`). `required` is enforced at section completion and when requesting approval,
+  not on every save, so drafts stay easy to save. Snapshots include values and schema.
+* Not yet: custom fields on complaints and on individual list rows (containment actions etc.), file-upload fields, PDF rendering (slice 3.4).
 
 ## Employee onboarding
 

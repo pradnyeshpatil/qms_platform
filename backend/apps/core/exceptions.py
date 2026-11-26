@@ -5,7 +5,7 @@
 `detail` repeats `message` (the pre-envelope key) so existing clients keep reading a message.
 """
 from django.http import Http404
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.views import exception_handler as drf_exception_handler
 
 from .context import get_request_context
@@ -58,3 +58,11 @@ def exception_handler(exc, context):
     if response is not None:
         response.data = build_envelope(exc, response.data)
     return response
+
+
+class EditConflict(APIException):
+    """Optimistic-locking failure: someone saved a newer version of the record first."""
+
+    status_code = 409
+    default_code = "edit_conflict"
+    default_detail = "This record was changed by someone else. Reload it and re-apply your edit."
