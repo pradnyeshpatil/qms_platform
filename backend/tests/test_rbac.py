@@ -5,7 +5,7 @@ from django.urls import get_resolver
 from rest_framework.exceptions import ValidationError
 
 from apps.complaints import services as complaint_services
-from apps.complaints.models import Complaint
+from apps.complaints.models import Complaint, ComplaintStatus
 from apps.rbac import catalog, services as rbac_services
 from apps.rbac.authorization import can, scope_queryset
 from apps.rbac.models import Role
@@ -85,11 +85,12 @@ def test_assign_and_close_are_separate_permissions(tenant_a):
     url = tenant_url("company-a", "complaints", complaint.id)
     assert c.patch(url, {"title": "Renamed"}, format="json").status_code == 200
     assert c.patch(url, {"owner": str(qe.id)}, format="json").status_code == 403
-    assert c.patch(url, {"status": "closed"}, format="json").status_code == 403
-    assert c.patch(url, {"status": "under_investigation"}, format="json").status_code == 200
+    closed = ComplaintStatus.objects.get(company=company, system_key="closed")
+    assert c.patch(url, {"status": str(closed.id), "closure_comment": "done"}, format="json").status_code == 403
+    assert c.patch(url, {"status": str(ComplaintStatus.objects.get(company=company, system_key="under_investigation").id)}, format="json").status_code == 200
     qm = client_for(add_member(company, "quality_manager"))
     assert qm.patch(url, {"owner": str(qe.id)}, format="json").status_code == 200
-    assert qm.patch(url, {"status": "closed"}, format="json").status_code == 200
+    assert qm.patch(url, {"status": str(closed.id), "closure_comment": "done"}, format="json").status_code == 200
 
 
 # --- scopes ------------------------------------------------------------------------------------

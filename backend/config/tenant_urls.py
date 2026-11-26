@@ -2,7 +2,12 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from apps.complaints.views import ComplaintViewSet, DashboardView
+from apps.attachments.views import AttachmentViewSet
+from apps.audit.views import AuditLogViewSet, TargetActivityViewSet
+from apps.comments.views import CommentViewSet
+from apps.complaints.views import (
+    ComplaintStatusViewSet, ComplaintViewSet, DashboardView, DefectCategoryViewSet,
+)
 from apps.customers.views import CustomerViewSet
 from apps.employees.views import EmployeeViewSet
 from apps.rbac.views import PermissionCatalogView, RoleViewSet
@@ -12,6 +17,12 @@ router = DefaultRouter()
 router.include_root_view = False
 router.register("customers", CustomerViewSet, basename="customer")
 router.register("complaints", ComplaintViewSet, basename="complaint")
+router.register("complaint-statuses", ComplaintStatusViewSet, basename="complaint-status")
+router.register("defect-categories", DefectCategoryViewSet, basename="defect-category")
+router.register("comments", CommentViewSet, basename="comment")
+router.register("attachments", AttachmentViewSet, basename="attachment")
+router.register("activity", TargetActivityViewSet, basename="activity")
+router.register("audit-log", AuditLogViewSet, basename="audit-log")
 router.register("plants", PlantViewSet, basename="plant")
 router.register("departments", DepartmentViewSet, basename="department")
 router.register("roles", RoleViewSet, basename="role")

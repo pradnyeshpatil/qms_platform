@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from apps.accounts.models import User
 from apps.complaints import services as complaint_services
-from apps.complaints.models import Complaint
+from apps.complaints.models import Complaint, ComplaintStatus, DefectCategory
 from apps.core.utils import company_today
 from apps.customers import services as customer_services
 from apps.customers.models import Customer
@@ -48,17 +48,21 @@ class Command(BaseCommand):
             ]
             today = company_today(company)
             rows = [
-                (0, "Burrs on machined flange", "Burrs found on 12 of 50 flanges at incoming inspection.", "Flange F-100", "FL-100-A", "major", "new", -5),
-                (1, "Wrong surface finish", "Anodizing colour out of spec.", "Housing H-7", "HS-007", "critical", "under_investigation", 3),
-                (2, "Missing documentation", "Certificates of conformance missing from shipment.", "PCB Mount", "PM-220", "minor", "resolved", -10),
-                (0, "Dimensional deviation", "Bore diameter 0.05mm over tolerance.", "Bracket B-3", "BR-003", "major", "under_investigation", 14),
-                (1, "Packaging damage", "Crates arrived damaged.", "Shaft S-9", "SH-009", "minor", "closed", None),
+                (0, "Burrs on machined flange", "Burrs found on 12 of 50 flanges at incoming inspection.", "Flange F-100", "FL-100-A", "major", "new", -5, "Dimensional", "B-1001"),
+                (1, "Wrong surface finish", "Anodizing colour out of spec.", "Housing H-7", "HS-007", "critical", "under_investigation", 3, "Surface finish", "B-2040"),
+                (2, "Missing documentation", "Certificates of conformance missing from shipment.", "PCB Mount", "PM-220", "minor", "resolved", -10, "Documentation", ""),
+                (0, "Dimensional deviation", "Bore diameter 0.05mm over tolerance.", "Bracket B-3", "BR-003", "major", "root_cause_analysis", 14, "Dimensional", "B-1001"),
+                (1, "Packaging damage", "Crates arrived damaged.", "Shaft S-9", "SH-009", "minor", "closed", None, "Packaging", "B-3300"),
             ]
-            for ci, title, desc, prod, part, sev, st, due in rows:
+            statuses = {s.system_key: s for s in ComplaintStatus.objects.for_company(company)}
+            defects = {d.name: d for d in DefectCategory.objects.for_company(company)}
+            for ci, title, desc, prod, part, sev, st, due, defect, batch in rows:
                 complaint_services.create_complaint(
                     company=company, user=user,
                     data=dict(customer=customers[ci], title=title, description=desc, product_name=prod,
-                              part_number=part, severity=sev, status=st,
+                              part_number=part, batch_number=batch, severity=sev, status=statuses[st],
+                              defect_category=defects[defect], source="email",
+                              closure_comment="Customer confirmed fix." if st == "closed" else "",
                               due_date=today + timedelta(days=due) if due is not None else None,
                               owner=m),
                 )

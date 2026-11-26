@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     "apps.employees",
     "apps.customers",
     "apps.complaints",
+    "apps.audit",
+    "apps.comments",
+    "apps.attachments",
 ]
 
 MIDDLEWARE = [
@@ -45,6 +48,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "apps.core.context.RequestContextMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -115,6 +119,7 @@ REST_FRAMEWORK = {
         "rest_framework.filters.SearchFilter",
         "rest_framework.filters.OrderingFilter",
     ],
+    "EXCEPTION_HANDLER": "apps.core.exceptions.exception_handler",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
@@ -136,6 +141,38 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "QMS Platform <no-reply@qms.local
 FRONTEND_URL = env("FRONTEND_URL", "http://localhost:5173")  # base of links in emails
 INVITATION_TTL_DAYS = int(env("INVITATION_TTL_DAYS", "7"))
 TRIAL_DAYS = int(env("TRIAL_DAYS", "14"))
+
+# Attachments (PROJECT_SPEC §13). Local disk in dev; point STORAGES["default"] at S3/MinIO (django-storages) in prod.
+MEDIA_ROOT = env("ATTACHMENT_ROOT", str(BASE_DIR / "media"))
+FILE_UPLOAD_PERMISSIONS = 0o640
+# ATTACHMENT_STORAGE=s3 stores files in S3 / MinIO (pip install -r requirements-s3.txt) and serves downloads through
+# short-lived presigned URLs issued after the permission check. Default "local" = MEDIA_ROOT on disk.
+ATTACHMENT_STORAGE = env("ATTACHMENT_STORAGE", "local")
+ATTACHMENT_URL_TTL_SECONDS = int(env("ATTACHMENT_URL_TTL_SECONDS", "60"))
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
+if ATTACHMENT_STORAGE == "s3":
+    STORAGES["default"] = {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            "bucket_name": env("S3_BUCKET", "qms-attachments"),
+            "endpoint_url": env("S3_ENDPOINT_URL") or None,  # set for MinIO
+            "access_key": env("S3_ACCESS_KEY"),
+            "secret_key": env("S3_SECRET_KEY"),
+            "region_name": env("S3_REGION", "us-east-1"),
+            "signature_version": "s3v4",
+            "addressing_style": env("S3_ADDRESSING_STYLE", "path"),
+            "querystring_auth": True,
+            "default_acl": None,  # private objects
+            "file_overwrite": False,
+        },
+    }
+ATTACHMENT_MAX_BYTES = int(env("ATTACHMENT_MAX_BYTES", str(25 * 1024 * 1024)))
+ATTACHMENT_COMPANY_QUOTA_BYTES = int(env("ATTACHMENT_COMPANY_QUOTA_BYTES", str(5 * 1024 * 1024 * 1024)))
+EXPORT_XLSX_MAX_ROWS = int(env("EXPORT_XLSX_MAX_ROWS", "20000"))
+COMMENT_EDIT_WINDOW_MINUTES = int(env("COMMENT_EDIT_WINDOW_MINUTES", "15"))
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"

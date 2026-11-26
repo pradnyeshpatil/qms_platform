@@ -18,11 +18,14 @@ DEFAULT_DEPARTMENTS = ["Quality", "Production", "Engineering", "Maintenance", "L
 def seed_company_defaults(company: Company) -> dict:
     """Default workspace content: system roles, the main plant, standard departments.
 
-    TODO(later phases): complaint/8D statuses (Phase 2/3), subscription row (Phase 5).
+    TODO(later phases): 8D statuses (Phase 3), subscription row (Phase 5).
     """
+    from apps.complaints.services import seed_company_config
+
     roles = rbac_services.seed_company_roles(company)
     plant = Plant.objects.create(company=company, name=DEFAULT_PLANT)
     Department.objects.bulk_create(Department(company=company, name=n) for n in DEFAULT_DEPARTMENTS)
+    seed_company_config(company)
     return {"roles": roles, "plant": plant}
 
 
