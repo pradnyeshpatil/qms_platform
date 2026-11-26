@@ -1,9 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { MotionConfig } from 'motion/react'
+import { Toaster } from 'sonner'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { RequireAuth } from '@/features/auth/auth'
+import { AuditLogPage } from '@/features/audit/AuditLogPage'
 import { AcceptInvitePage, ChangePasswordPage, LoginPage, RegisterPage } from '@/features/auth/AuthPages'
 import { ComplaintDetailPage } from '@/features/complaints/ComplaintDetailPage'
 import { ComplaintsPage } from '@/features/complaints/ComplaintsPage'
+import { ComplaintSettingsPage } from '@/features/settings/ComplaintSettingsPage'
 import { CustomersPage } from '@/features/customers/CustomersPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { Home } from '@/features/landing/Home'
@@ -17,6 +21,7 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false,
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <MotionConfig reducedMotion="user">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -34,11 +39,15 @@ export default function App() {
               <Route path="employees" element={<EmployeesPage />} />
               <Route path="roles" element={<RolesPage />} />
               <Route path="organization" element={<OrganizationPage />} />
+              <Route path="settings/complaints" element={<ComplaintSettingsPage />} />
+              <Route path="audit" element={<AuditLogPage />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      <Toaster position="bottom-right" closeButton toastOptions={{ classNames: { toast: '!rounded-2xl !border-slate-200 !shadow-[var(--shadow-pop)] !font-sans' } }} />
+      </MotionConfig>
     </QueryClientProvider>
   )
 }
