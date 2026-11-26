@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowDown, ArrowUp, Check, Info, Pencil, Plus, Trash2, X } from 'lucide-react'
+import { ArrowDown, ArrowUp, Check, Info, ListChecks, Pencil, Plus, SlidersHorizontal, Tag, Trash2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/kit/button'
@@ -9,6 +9,7 @@ import { FormField, SelectInput, Switch, TextInput } from '@/components/kit/inpu
 import { Reveal } from '@/components/kit/motion'
 import { ConfirmDialog, Modal } from '@/components/kit/overlay'
 import { Chip, StatusPill } from '@/components/kit/pills'
+import { SECTION_TONE } from '@/components/kit/theme'
 import { api, ApiError, tenantPath } from '@/lib/api'
 import { CATEGORY_LABEL, STATUS_CATEGORIES, type DefectCategory, type StatusCategory, type WorkflowStatus } from '@/lib/types'
 import { RequirePermission } from '@/features/auth/auth'
@@ -98,7 +99,7 @@ function StatusesCard() {
   })
   return (
     <Card>
-      <CardHeading title="Workflow statuses" hint="The steps every complaint moves through, in order." action={<Button size="sm" onClick={() => setAdding(true)}><Plus className="h-4 w-4" /> Add status</Button>} />
+      <CardHeading icon={ListChecks} tone="indigo" title="Workflow statuses" hint="The steps every complaint moves through, in order." action={<Button size="sm" onClick={() => setAdding(true)}><Plus className="h-4 w-4" /> Add status</Button>} />
       <div className="px-5 pb-2 pt-3">
         <Notice tone="info"><span className="flex gap-2"><Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden /><span>Each status has a <strong>kind</strong>. The kind, not the name, decides what counts as open, overdue, resolved or closed on the dashboard, so you can rename steps freely.</span></span></Notice>
       </div>
@@ -176,7 +177,7 @@ function DefectsCard() {
   const err = add.error instanceof ApiError ? add.error.fieldErrors.name ?? add.error.message : add.error?.message
   return (
     <Card>
-      <CardHeading title="Defect types" hint="What kind of problem a complaint is about. Used for filtering and reports." />
+      <CardHeading icon={Tag} tone="amber" title="Defect types" hint="What kind of problem a complaint is about. Used for filtering and reports." />
       <form className="flex gap-2 px-5 pb-1 pt-4" onSubmit={(e) => { e.preventDefault(); if (name.trim()) add.mutate() }}>
         <TextInput aria-label="New defect type" placeholder="e.g. Weld quality" value={name} onChange={(e) => setName(e.target.value)} aria-invalid={!!err} />
         <Button type="submit" loading={add.isPending} disabled={!name.trim()}><Plus className="h-4 w-4" /> Add</Button>
@@ -192,7 +193,7 @@ function DefectsCard() {
 export function ComplaintSettingsPage() {
   return (
     <RequirePermission permission="settings.manage">
-      <PageTitle title="Complaint settings" subtitle="Shape how your team handles complaints. Changes apply to everyone in your workspace." />
+      <PageTitle icon={SlidersHorizontal} tone={SECTION_TONE.settings} title="Complaint settings" subtitle="Shape how your team handles complaints. Changes apply to everyone in your workspace." />
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <StatusesCard />
         <DefectsCard />

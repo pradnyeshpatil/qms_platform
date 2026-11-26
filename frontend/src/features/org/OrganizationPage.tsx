@@ -6,6 +6,9 @@ import { Badge, Card, CardHeader, EmptyState, ErrorState, Loading } from '@/comp
 import { useCan } from '@/features/auth/auth'
 import { api, tenantPath } from '@/lib/api'
 import { PageHeader, useSlug } from '@/layout/AppLayout'
+import { Building2, Factory, Network } from 'lucide-react'
+import { IconTile } from '@/components/kit/card'
+import { SECTION_TONE } from '@/components/kit/theme'
 import { useDepartments, usePlants } from './hooks'
 
 function useOrgMutation(resource: 'plants' | 'departments') {
@@ -30,7 +33,7 @@ function Plants({ canManage }: { canManage: boolean }) {
   const [name, setName] = useState('')
   return (
     <Card>
-      <CardHeader>Plants</CardHeader>
+      <CardHeader><span className="flex items-center gap-3"><IconTile icon={Factory} tone="amber" size="sm" />Plants</span></CardHeader>
       {canManage && (
         <form className="flex gap-2 border-b border-border p-4" onSubmit={(e) => { e.preventDefault(); if (name.trim()) m.create.mutate({ name }, { onSuccess: () => setName('') }) }}>
           <Input placeholder="New plant name" value={name} onChange={(e) => setName(e.target.value)} />
@@ -66,7 +69,7 @@ function Departments({ canManage }: { canManage: boolean }) {
   const plantName = (id: string | null) => plants.data?.find((p) => p.id === id)?.name
   return (
     <Card>
-      <CardHeader>Departments</CardHeader>
+      <CardHeader><span className="flex items-center gap-3"><IconTile icon={Network} tone="teal" size="sm" />Departments</span></CardHeader>
       {canManage && (
         <form className="flex flex-wrap gap-2 border-b border-border p-4" onSubmit={(e) => { e.preventDefault(); if (name.trim()) m.create.mutate({ name, plant: plant || null }, { onSuccess: () => setName('') }) }}>
           <Input className="min-w-40 flex-1" placeholder="New department name" value={name} onChange={(e) => setName(e.target.value)} />
@@ -101,7 +104,7 @@ export function OrganizationPage() {
   const can = useCan()
   return (
     <>
-      <PageHeader title="Plants & departments" />
+      <PageHeader icon={Building2} tone={SECTION_TONE.organization} title="Plants & departments" subtitle="Where your work happens and who it belongs to" />
       <div className="grid gap-6 lg:grid-cols-2">
         <Plants canManage={can('plants.manage')} />
         <Departments canManage={can('departments.manage')} />

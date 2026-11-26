@@ -8,6 +8,9 @@ import { useRoles } from '@/features/org/hooks'
 import { api, tenantPath } from '@/lib/api'
 import { SCOPES, type Grant, type PermissionDef, type Role, type Scope } from '@/lib/types'
 import { PageHeader, useSlug } from '@/layout/AppLayout'
+import { ShieldCheck, Users } from 'lucide-react'
+import { Avatar } from '@/components/kit/avatar'
+import { SECTION_TONE } from '@/components/kit/theme'
 
 const NEW = 'new'
 
@@ -52,8 +55,8 @@ function RoleEditor({ role, catalog, onSaved, onDeleted }: { role: Role | null; 
         </div>
         {modules.map((mod) => (
           <fieldset key={mod}>
-            <legend className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{mod.replace(/_/g, ' ')}</legend>
-            <div className="divide-y divide-border rounded-md border border-border">
+            <legend className="mb-2 text-xs font-semibold uppercase tracking-wider text-violet-600">{mod.replace(/_/g, ' ')}</legend>
+            <div className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200">
               {catalog.filter((p) => p.module === mod).map((p) => (
                 <div key={p.code} className="flex items-center gap-3 px-3 py-2 text-sm">
                   <label className="flex flex-1 items-center gap-2">
@@ -95,15 +98,18 @@ function Roles() {
   const current = selected === NEW ? null : list.find((r) => r.id === selected) ?? list[0]
   return (
     <>
-      <PageHeader title="Roles & permissions" actions={<Button onClick={() => setSelected(NEW)}>New role</Button>} />
+      <PageHeader icon={ShieldCheck} tone={SECTION_TONE.roles} title="Roles & permissions" subtitle="Control exactly what each kind of employee can see and do" actions={<Button onClick={() => setSelected(NEW)}>New role</Button>} />
       <div className="grid gap-6 lg:grid-cols-[16rem_1fr]">
         <Card className="h-fit">
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-slate-100">
             {list.map((r) => (
               <li key={r.id}>
-                <button type="button" onClick={() => setSelected(r.id)} className={`w-full px-4 py-3 text-left text-sm hover:bg-muted ${current?.id === r.id ? 'bg-muted font-semibold' : ''}`}>
-                  {r.name}
-                  <span className="block text-xs font-normal text-muted-foreground">{r.member_count} {r.member_count === 1 ? 'employee' : 'employees'}</span>
+                <button type="button" onClick={() => setSelected(r.id)} className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors hover:bg-violet-50/60 ${current?.id === r.id ? 'bg-violet-50 shadow-[inset_3px_0_0_0_theme(colors.violet.500)]' : ''}`}>
+                  <Avatar name={r.name} size="md" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-medium text-slate-900">{r.name}</span>
+                    <span className="flex items-center gap-1 text-xs font-normal text-slate-500"><Users className="h-3 w-3" />{r.member_count} {r.member_count === 1 ? 'employee' : 'employees'}</span>
+                  </span>
                 </button>
               </li>
             ))}

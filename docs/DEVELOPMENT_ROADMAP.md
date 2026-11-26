@@ -70,5 +70,5 @@ envelope (`fields`, `message`, `code`, `request_id`) and keeps working with the 
 Verified by driving the real app with a headless browser (create → comment → upload → assign → close/reopen → settings → audit, plus
 viewer and engineer permission checks and a phone-width pass) on a throwaway database copy; Vitest covers the pure logic and components.
 
-Still open: Playwright E2E suite checked into the repo + CI, migrating the remaining pages (customers, employees, roles, organisation,
-auth) to the kit, code-splitting the JS bundle (single chunk > 500 kB), dark mode.
+UI refresh (vibrant theme) applied app-wide: shell, dashboard, every page and the auth screens.
+Still open: Playwright E2E suite checked into the repo + CI, code-splitting the JS bundle (single chunk > 500 kB), dark mode.

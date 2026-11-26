@@ -12,7 +12,7 @@ import { Menu, MenuLabel, MenuLink } from '@/components/kit/menu'
 import { Reveal } from '@/components/kit/motion'
 import { SeverityPill, StatusPill } from '@/components/kit/pills'
 import { Segmented } from '@/components/kit/segmented'
-import { SEVERITY_STYLE } from '@/components/kit/theme'
+import { SECTION_TONE, SEVERITY_STYLE } from '@/components/kit/theme'
 import { api, qs, tenantPath } from '@/lib/api'
 import { SEVERITIES, type Complaint, type Customer, type Page } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -115,6 +115,7 @@ export function ComplaintsPage() {
   return (
     <>
       <PageTitle
+        icon={ClipboardList} tone={SECTION_TONE.complaints}
         title="Complaints"
         subtitle={q.data ? `${count} ${anyFilter ? 'matching' : 'in total'}` : 'Every customer complaint in one place'}
         actions={<>

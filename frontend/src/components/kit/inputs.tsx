@@ -1,4 +1,4 @@
-import { AlertCircle, ChevronDown } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 
@@ -22,12 +22,7 @@ export function TextArea({ className, ...p }: React.ComponentProps<'textarea'>) 
 }
 
 export function SelectInput({ className, children, ...p }: React.ComponentProps<'select'>) {
-  return (
-    <div className="relative">
-      <select className={cn(control, 'h-11 cursor-pointer appearance-none pr-10', className)} {...p}>{children}</select>
-      <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
-    </div>
-  )
+  return <select className={cn(control, 'select-chevron h-11 cursor-pointer', className)} {...p}>{children}</select>
 }
 
 /** Label + control + hint / error. Pass the control as children; give it `id={htmlFor}`. */

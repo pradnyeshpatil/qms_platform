@@ -10,6 +10,7 @@ import { ErrorPanel, Notice, Skeleton } from '@/components/kit/feedback'
 import { Menu, MenuItem, MenuSeparator } from '@/components/kit/menu'
 import { ConfirmDialog } from '@/components/kit/overlay'
 import { SeverityPill, StatusPill } from '@/components/kit/pills'
+import { CATEGORY_STYLE, SEVERITY_STYLE } from '@/components/kit/theme'
 import { TabBar } from '@/components/kit/segmented'
 import { api, ApiError, tenantPath } from '@/lib/api'
 import { dateTime, shortDate } from '@/lib/format'
@@ -89,6 +90,7 @@ export function ComplaintDetailPage() {
       <Link to={`/${slug}/complaints`} className="mb-4 inline-flex items-center gap-1.5 rounded-lg text-sm text-slate-500 transition-colors hover:text-slate-900"><ArrowLeft className="h-4 w-4" /> All complaints</Link>
 
       <Card className="mb-6 overflow-hidden">
+        <div className="h-1.5 w-full" style={{ background: `linear-gradient(90deg, ${CATEGORY_STYLE[c.status_category].bar}, ${SEVERITY_STYLE[c.severity].bar})` }} aria-hidden />
         <div className="p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0 flex-1">

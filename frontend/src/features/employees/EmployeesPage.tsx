@@ -12,6 +12,9 @@ import { useDepartments, usePlants, useRoles } from '@/features/org/hooks'
 import { api, ApiError, tenantPath } from '@/lib/api'
 import type { Employee, Page } from '@/lib/types'
 import { PageHeader, useSlug } from '@/layout/AppLayout'
+import { UserCog } from 'lucide-react'
+import { Avatar } from '@/components/kit/avatar'
+import { SECTION_TONE } from '@/components/kit/theme'
 
 const STATUS_TONE = { active: 'green', invited: 'amber', inactive: 'gray' } as const
 
@@ -20,7 +23,7 @@ type Secret = { title: string; label: string; value: string }
 
 function SecretNotice({ secret, onClose }: { secret: Secret; onClose: () => void }) {
   return (
-    <Card className="mb-6 border-amber-300 bg-amber-50" role="status">
+    <Card className="mb-6 border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50" role="status">
       <CardContent className="space-y-2">
         <p className="font-semibold">{secret.title}</p>
         <p className="text-sm">{secret.label} It is shown <strong>only once</strong> — copy it now.</p>
@@ -257,6 +260,7 @@ function Employees() {
   return (
     <>
       <PageHeader
+        icon={UserCog} tone={SECTION_TONE.employees} subtitle="Invite people and decide what they can do"
         title="Employees"
         actions={can('users.create') && (
           <div className="flex gap-2">
@@ -286,7 +290,7 @@ function Employees() {
               <tbody>
                 {q.data!.results.map((e) => (
                   <tr key={e.id}>
-                    <Td className="font-medium">{e.first_name} {e.last_name}{e.employee_id && <span className="ml-2 text-xs text-muted-foreground">#{e.employee_id}</span>}</Td>
+                    <Td><span className="flex items-center gap-3"><Avatar name={`${e.first_name} ${e.last_name}`.trim() || e.email || e.username} size="md" /><span className="font-medium text-slate-900">{e.first_name} {e.last_name}{e.employee_id && <span className="ml-2 text-xs font-normal text-slate-400">#{e.employee_id}</span>}</span></span></Td>
                     <Td>{e.email ?? <span title="Signs in with workspace + username">@{e.username}</span>}</Td>
                     <Td>{e.role.name}</Td>
                     <Td>{e.department?.name ?? '—'}</Td>

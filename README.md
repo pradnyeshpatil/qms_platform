@@ -77,16 +77,22 @@ image attachments (`attachments/{id}/thumbnail/`, generated inline at upload) ·
 `S3_ENDPOINT_URL` (optional `S3_REGION`, `S3_ADDRESSING_STYLE`, `ATTACHMENT_URL_TTL_SECONDS`). Downloads then redirect to a short-lived
 presigned URL issued after the permission check. (The redirect logic is tested; a live S3/MinIO round-trip has not been run.)
 
+## Design system (vibrant theme)
+
+The whole app uses one design language: dark indigo sidebar with a coloured icon per section (`SECTION_TONE` in
+`frontend/src/components/kit/theme.ts`), gradient hero banner and KPI tiles on the dashboard, coloured icon tiles on every page title,
+and a split-screen sign-in. The old primitives in `components/ui/*` now render in the same style, so every page matches.
+Dark mode is not built yet.
+
 ## Phase 2 frontend — done (new design)
 
-The Phase 2 screens use a new design language; the rest of the app (customers, employees, roles, plants, auth) is unchanged and will be
-migrated page by page. Redesigned: **dashboard**, **complaints list** (quick filters, search, URL-synced filters, export to CSV/Excel),
+Redesigned: **dashboard**, **complaints list** (quick filters, search, URL-synced filters, export to CSV/Excel),
 **create/edit drawer** (live duplicate warning), **complaint detail** (workflow stepper, status dialog with closure rules, assign dialog,
 comments with edit/history, drag-and-drop files with thumbnails, activity timeline), **complaint settings** (statuses, defect types),
 **audit log**. The sidebar/shell was modernised for all in-app pages.
 
 - Design kit: `frontend/src/components/kit/*` (buttons, inputs, pills, drawer/modal, tabs, menus, motion helpers). Old primitives in
-  `components/ui/*` still serve the unmigrated pages. Colour language lives in `kit/theme.ts` (status category → colour, severity → colour).
+  `components/ui/*` are the legacy primitives, restyled to match. Colour language lives in `kit/theme.ts` (status category → colour, severity → colour).
 - Motion: `motion` (page/list reveals, sliding tabs, stepper, count-up, bar/donut charts), respecting *reduce motion* via `MotionConfig`.
 - Toasts: `sonner`. Overlays/menus/tabs: Radix. Font: Inter (self-hosted via `@fontsource-variable/inter`).
 - Tests: `cd frontend && npm test` (Vitest + Testing Library, happy-dom) — error envelope, date/size formatting, activity sentences,
@@ -94,5 +100,5 @@ comments with edit/history, drag-and-drop files with thumbnails, activity timeli
 
 ## Not built yet
 
-Phase 3+ (see `docs/DEVELOPMENT_ROADMAP.md`): 8D reports, tasks, custom fields, notifications/Celery, share links; new design for the remaining pages.
+Phase 3+ (see `docs/DEVELOPMENT_ROADMAP.md`): 8D reports, tasks, custom fields, notifications/Celery, share links.
 Known Phase 1 gaps: login rate limiting, email verification, self-service password reset, session management, MFA, RLS.

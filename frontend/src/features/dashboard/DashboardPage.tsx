@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'motion/react'
-import { AlertTriangle, ArrowUpRight, CalendarClock, ClipboardList, Flame, FolderOpen, Plus, Sparkles } from 'lucide-react'
+import { AlertTriangle, BarChart3, CalendarClock, ClipboardList, Clock, Flame, FolderOpen, PieChart, Plus, Sparkles, Trophy, UserCheck, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Avatar } from '@/components/kit/avatar'
 import { buttonClass } from '@/components/kit/button'
-import { Card, CardHeading, PageTitle } from '@/components/kit/card'
+import { Card, CardHeading } from '@/components/kit/card'
+import { Hero, StatTile } from '@/components/kit/hero'
 import { EmptyPanel, ErrorPanel, Skeleton } from '@/components/kit/feedback'
 import { CountUp, Reveal } from '@/components/kit/motion'
 import { SeverityPill } from '@/components/kit/pills'
@@ -24,27 +25,6 @@ type Range = '7' | '30' | '90' | 'all'
 function greeting(name: string) {
   const h = new Date().getHours()
   return `${h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'}${name ? `, ${name}` : ''}`
-}
-
-function StatCard({ label, value, hint, icon: Icon, tone, to, index, pulse }: {
-  label: string; value: number; hint: string; icon: React.ComponentType<{ className?: string }>; tone: string; to: string; index: number; pulse?: boolean
-}) {
-  return (
-    <Reveal index={index}>
-      <Link to={to} className="group relative block overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-5 shadow-[var(--shadow-card)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60">
-        <div className="flex items-start justify-between">
-          <span className={cn('relative flex h-10 w-10 items-center justify-center rounded-xl', tone)}>
-            {pulse && <span className="absolute inset-0 animate-[var(--animate-pulse-ring)] rounded-xl bg-rose-400/40" aria-hidden />}
-            <Icon className="relative h-5 w-5" />
-          </span>
-          <ArrowUpRight className="h-4 w-4 text-slate-300 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-indigo-500" aria-hidden />
-        </div>
-        <p className="mt-4 text-[13px] font-medium text-slate-500">{label}</p>
-        <p className="mt-0.5 text-4xl font-semibold tabular-nums tracking-tight text-slate-900"><CountUp value={value} /></p>
-        <p className="mt-1 text-xs text-slate-400">{hint}</p>
-      </Link>
-    </Reveal>
-  )
 }
 
 function BarList({ items, color, empty }: { items: Bucket[]; color: string; empty: string }) {
@@ -157,14 +137,10 @@ export function DashboardPage() {
 
   return (
     <>
-      <PageTitle
-        title={greeting(me?.first_name ?? '')}
-        subtitle="Here’s what’s happening with your customer complaints."
-        actions={<>
-          <Segmented<Range> label="Time range" value={range} onChange={setRange} options={[{ value: '7', label: '7 days' }, { value: '30', label: '30 days' }, { value: '90', label: '90 days' }, { value: 'all', label: 'All time' }]} />
-          {can('complaints.create') && <Link to={`${base}?new=1`} className={buttonClass('primary', 'md')}><Plus className="h-4 w-4" /> New complaint</Link>}
-        </>}
-      />
+      <Hero title={greeting(me?.first_name ?? '')} subtitle="Here’s what’s happening with your customer complaints.">
+        <Segmented<Range> label="Time range" value={range} onChange={setRange} options={[{ value: '7', label: '7 days' }, { value: '30', label: '30 days' }, { value: '90', label: '90 days' }, { value: 'all', label: 'All time' }]} />
+        {can('complaints.create') && <Link to={`${base}?new=1`} className={buttonClass('light', 'md')}><Plus className="h-4 w-4" /> New complaint</Link>}
+      </Hero>
       {q.isLoading ? <DashboardSkeleton /> : q.isError ? <Card><ErrorPanel error={q.error} onRetry={() => q.refetch()} /></Card> : q.data && (() => {
         const d = q.data
         if (d.total === 0 && range === 'all') {
@@ -173,26 +149,26 @@ export function DashboardPage() {
         return (
           <div className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <StatCard index={0} label="All complaints" value={d.total} hint="In the selected period" icon={ClipboardList} tone="bg-indigo-50 text-indigo-600" to={base} />
-              <StatCard index={1} label="Open" value={d.open} hint="Not yet resolved or closed" icon={FolderOpen} tone="bg-sky-50 text-sky-600" to={`${base}?view=open`} />
-              <StatCard index={2} label="Overdue" value={d.overdue} hint={d.overdue ? 'Past their due date' : 'Nothing is late. Nice!'} icon={AlertTriangle} tone={d.overdue ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'} to={`${base}?view=overdue`} pulse={d.overdue > 0} />
-              <StatCard index={3} label="Critical" value={d.by_severity.critical ?? 0} hint="Safety or line-stopping issues" icon={Flame} tone="bg-amber-50 text-amber-600" to={`${base}?severity=critical`} />
+              <Reveal index={0}><StatTile label="All complaints" value={d.total} hint="In the selected period" icon={ClipboardList} tone="indigo" to={base} /></Reveal>
+              <Reveal index={1}><StatTile label="Open" value={d.open} hint="Not yet resolved or closed" icon={FolderOpen} tone="sky" to={`${base}?view=open`} /></Reveal>
+              <Reveal index={2}><StatTile label="Overdue" value={d.overdue} hint={d.overdue ? 'Past their due date' : 'Nothing is late. Nice!'} icon={AlertTriangle} tone={d.overdue ? 'rose' : 'emerald'} to={`${base}?view=overdue`} pulse={d.overdue > 0} /></Reveal>
+              <Reveal index={3}><StatTile label="Critical" value={d.by_severity.critical ?? 0} hint="Safety or line-stopping issues" icon={Flame} tone="amber" to={`${base}?severity=critical`} /></Reveal>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
-              <Reveal index={4}><Card className="h-full"><CardHeading title="Where complaints are" hint="By workflow status" /><StatusBreakdown data={d.by_status} /></Card></Reveal>
-              <Reveal index={5}><Card className="h-full"><CardHeading title="How serious they are" hint="By severity" /><Donut stats={d} /></Card></Reveal>
+              <Reveal index={4}><Card className="h-full"><CardHeading title="Where complaints are" hint="By workflow status" icon={BarChart3} tone="sky" /><StatusBreakdown data={d.by_status} /></Card></Reveal>
+              <Reveal index={5}><Card className="h-full"><CardHeading title="How serious they are" hint="By severity" icon={PieChart} tone="rose" /><Donut stats={d} /></Card></Reveal>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
-              <Reveal index={6}><Card className="h-full"><CardHeading title="Coming up" hint="Open complaints due in the next 14 days" action={<CalendarClock className="h-5 w-5 text-slate-300" />} /><CardList rows={d.upcoming_deadlines} slug={slug} showDue empty="No deadlines in the next two weeks." /></Card></Reveal>
-              <Reveal index={7}><Card className="h-full"><CardHeading title="Recently logged" action={<Link to={base} className="text-[13px] font-medium text-indigo-600 hover:text-indigo-800">View all</Link>} /><CardList rows={d.recent} slug={slug} empty="No complaints in this period." /></Card></Reveal>
+              <Reveal index={6}><Card className="h-full"><CardHeading title="Coming up" hint="Open complaints due in the next 14 days" icon={CalendarClock} tone="amber" /><CardList rows={d.upcoming_deadlines} slug={slug} showDue empty="No deadlines in the next two weeks." /></Card></Reveal>
+              <Reveal index={7}><Card className="h-full"><CardHeading title="Recently logged" icon={Clock} tone="indigo" action={<Link to={base} className="text-[13px] font-medium text-indigo-600 hover:text-indigo-800">View all</Link>} /><CardList rows={d.recent} slug={slug} empty="No complaints in this period." /></Card></Reveal>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-3">
-              <Reveal index={8}><Card className="h-full"><CardHeading title="Top customers" /><BarList items={d.by_customer} color="linear-gradient(90deg,#6366f1,#8b5cf6)" empty="No data yet." /></Card></Reveal>
-              <Reveal index={9}><Card className="h-full"><CardHeading title="By department" /><BarList items={d.by_department} color="linear-gradient(90deg,#0ea5e9,#6366f1)" empty="No data yet." /></Card></Reveal>
-              <Reveal index={10}><Card className="h-full"><CardHeading title="Who’s handling them" />
+              <Reveal index={8}><Card className="h-full"><CardHeading title="Top customers" icon={Trophy} tone="violet" /><BarList items={d.by_customer} color="linear-gradient(90deg,#6366f1,#8b5cf6)" empty="No data yet." /></Card></Reveal>
+              <Reveal index={9}><Card className="h-full"><CardHeading title="By department" icon={Users} tone="teal" /><BarList items={d.by_department} color="linear-gradient(90deg,#0ea5e9,#6366f1)" empty="No data yet." /></Card></Reveal>
+              <Reveal index={10}><Card className="h-full"><CardHeading title="Who’s handling them" icon={UserCheck} tone="emerald" />
                 {d.by_employee.length ? <ul className="space-y-3 px-5 pb-5 pt-3">{d.by_employee.map((e) => <li key={e.id} className="flex items-center gap-3"><Avatar name={e.name} size="sm" /><span className="min-w-0 flex-1 truncate text-sm text-slate-700">{e.name}</span><span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold tabular-nums text-slate-700">{e.count}</span></li>)}</ul> : <p className="px-5 pb-6 pt-3 text-sm text-slate-400">No owners assigned yet.</p>}
               </Card></Reveal>
             </div>

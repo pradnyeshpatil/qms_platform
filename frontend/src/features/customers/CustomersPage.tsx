@@ -9,6 +9,9 @@ import { Badge, Card, CardContent, CardHeader, EmptyState, ErrorState, Loading, 
 import { api, ApiError, tenantPath } from '@/lib/api'
 import type { Customer, Page } from '@/lib/types'
 import { PageHeader, useSlug } from '@/layout/AppLayout'
+import { Users } from 'lucide-react'
+import { Avatar } from '@/components/kit/avatar'
+import { SECTION_TONE } from '@/components/kit/theme'
 
 const schema = z.object({
   name: z.string().min(1, 'Required'),
@@ -64,7 +67,7 @@ export function CustomersPage() {
   })
   return (
     <>
-      <PageHeader title="Customers" actions={<Button onClick={() => setShowForm(true)}>New customer</Button>} />
+      <PageHeader icon={Users} tone={SECTION_TONE.customers} title="Customers" subtitle="The companies that buy from you" actions={<Button onClick={() => setShowForm(true)}>New customer</Button>} />
       {showForm && <CustomerForm onDone={() => setShowForm(false)} />}
       <Card>
         <div className="border-b border-border p-4">
@@ -79,7 +82,7 @@ export function CustomersPage() {
               <tbody>
                 {q.data!.results.map((c) => (
                   <tr key={c.id}>
-                    <Td className="font-medium">{c.name}</Td><Td>{c.contact_person}</Td><Td>{c.email}</Td><Td>{c.phone}</Td><Td>{c.country}</Td>
+                    <Td><span className="flex items-center gap-3"><Avatar name={c.name} size="md" /><span className="font-medium text-slate-900">{c.name}</span></span></Td><Td>{c.contact_person}</Td><Td>{c.email}</Td><Td>{c.phone}</Td><Td>{c.country}</Td>
                     <Td><Badge tone={c.status === 'active' ? 'green' : 'gray'}>{c.status}</Badge></Td>
                   </tr>
                 ))}

@@ -8,6 +8,7 @@ import { Card, PageTitle } from '@/components/kit/card'
 import { EmptyPanel, ErrorPanel, ListSkeleton } from '@/components/kit/feedback'
 import { SelectInput, TextInput } from '@/components/kit/inputs'
 import { Reveal } from '@/components/kit/motion'
+import { SECTION_TONE } from '@/components/kit/theme'
 import { ACTION_FILTERS, describeActivity, fieldLabel } from '@/lib/activity'
 import { api, qs, tenantPath } from '@/lib/api'
 import { dateTime, timeAgo } from '@/lib/format'
@@ -101,7 +102,7 @@ function AuditLogContent() {
 
   return (
     <>
-      <PageTitle title="Audit log" subtitle="A permanent, read-only record of who did what. Nobody can edit or delete it." />
+      <PageTitle icon={ScrollText} tone={SECTION_TONE.audit} title="Audit log" subtitle="A permanent, read-only record of who did what. Nobody can edit or delete it." />
       <Card className="overflow-hidden">
         <div className="flex flex-wrap items-center gap-3 border-b border-slate-100 p-4">
           <div className="min-w-56 flex-1"><TextInput aria-label="Search the audit log" icon={<Search className="h-4 w-4" />} placeholder="Search by person, record or action…" value={get('q')} onChange={(e) => set({ q: e.target.value })} /></div>
