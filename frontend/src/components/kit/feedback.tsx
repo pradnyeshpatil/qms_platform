@@ -1,4 +1,4 @@
-import { AlertCircle, SearchX } from 'lucide-react'
+import { AlertCircle, Loader2, SearchX } from 'lucide-react'
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
@@ -58,6 +58,15 @@ export function Notice({ tone = 'error', title, children }: { tone?: 'error' | '
     <div role={tone === 'error' ? 'alert' : 'status'} className={cn('animate-rise rounded-xl px-4 py-3 text-sm ring-1 ring-inset', tones[tone])}>
       {title && <p className="font-semibold">{title}</p>}
       {children && <div className={title ? 'mt-0.5 opacity-90' : ''}>{children}</div>}
+    </div>
+  )
+}
+
+/** Full-screen spinner shown while the session / route is resolving. */
+export function PageLoading() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-app" role="status" aria-label="Loading">
+      <Loader2 className="h-6 w-6 animate-spin text-indigo-500" aria-hidden />
     </div>
   )
 }

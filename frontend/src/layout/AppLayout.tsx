@@ -15,16 +15,6 @@ import { api } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { useCan, useMe } from '@/features/auth/auth'
 
-/** Title row used by pages that have not been redesigned yet. */
-export function PageHeader({ title, actions }: { title: string; actions?: React.ReactNode }) {
-  return (
-    <div className="mb-6 flex items-center justify-between">
-      <h1 className="text-[28px] font-semibold tracking-tight text-slate-900">{title}</h1>
-      {actions}
-    </div>
-  )
-}
-
 export function useSlug() {
   return useParams().slug as string
 }

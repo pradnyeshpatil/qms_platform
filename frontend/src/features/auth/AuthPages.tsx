@@ -4,28 +4,42 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
-import { Button } from '@/components/ui/button'
-import { Field, Input } from '@/components/ui/form-controls'
-import { Card, CardContent } from '@/components/ui/misc'
+import { ShieldCheck } from 'lucide-react'
+import { Button, buttonClass } from '@/components/kit/button'
+import { Notice } from '@/components/kit/feedback'
+import { FormField, TextInput } from '@/components/kit/inputs'
+import { PageTransition } from '@/components/kit/motion'
+import { Segmented } from '@/components/kit/segmented'
 import { api, ApiError } from '@/lib/api'
 import type { Me } from '@/lib/types'
+import { AuthVisual } from './AuthVisual'
 import { ME_KEY, useMe } from './auth'
 
-function AuthShell({ title, children }: { title: string; children: React.ReactNode }) {
+function AuthShell({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardContent className="space-y-5 p-8">
-          <div>
-            <p className="text-sm font-semibold text-primary">QMS Platform</p>
-            <h1 className="text-2xl font-bold">{title}</h1>
+    <div className="grid min-h-screen lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <AuthVisual />
+      <main className="bg-app flex items-center justify-center px-5 py-12 sm:px-10">
+        <div className="w-full max-w-md"><PageTransition>
+          <div className="rounded-3xl border border-slate-200/70 bg-white p-8 shadow-[var(--shadow-card)] sm:p-9">
+            <Link to="/" className="mb-8 flex items-center gap-2.5 lg:hidden">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white"><ShieldCheck className="h-5 w-5" aria-hidden /></span>
+              <span className="text-[15px] font-semibold text-slate-900">QMS Platform</span>
+            </Link>
+            <h1 className="text-[32px] font-semibold tracking-tight text-slate-900">{title}</h1>
+            {subtitle && <p className="mt-2 text-[15px] text-slate-500">{subtitle}</p>}
+            <div className="mt-8 space-y-6">{children}</div>
           </div>
-          {children}
-        </CardContent>
-      </Card>
+        </PageTransition></div>
+      </main>
     </div>
   )
 }
+
+const FooterLink = ({ to, children }: { to: string; children: React.ReactNode }) => (
+  <Link className="font-medium text-indigo-600 hover:text-indigo-800" to={to}>{children}</Link>
+)
+const errorText = (e: unknown) => (e instanceof ApiError && Object.keys(e.fieldErrors).length ? null : e instanceof Error ? e.message : null)
 
 const emailLogin = z.object({ email: z.string().email('Enter a valid email'), password: z.string().min(1, 'Required') })
 const usernameLogin = z.object({
@@ -47,21 +61,11 @@ export function LoginPage() {
   })
   if (me) return <Navigate to="/" replace />
   return (
-    <AuthShell title="Sign in">
-      <div className="grid grid-cols-2 gap-1 rounded-md bg-muted p-1 text-sm" role="tablist">
-        {(['email', 'username'] as const).map((k) => (
-          <button
-            key={k} type="button" role="tab" aria-selected={mode === k}
-            onClick={() => { setMode(k); m.reset() }}
-            className={`rounded px-3 py-1.5 font-medium ${mode === k ? 'bg-card shadow-sm' : 'text-muted-foreground'}`}
-          >
-            {k === 'email' ? 'Email' : 'Username'}
-          </button>
-        ))}
-      </div>
+    <AuthShell title="Welcome back" subtitle="Sign in to your workspace.">
+      <Segmented label="Sign-in method" value={mode} onChange={(k) => { setMode(k); m.reset() }} options={[{ value: 'email', label: 'Email' }, { value: 'username', label: 'Username' }]} />
       {mode === 'email' ? <EmailForm onSubmit={(v) => m.mutate(v)} /> : <UsernameForm onSubmit={(v) => m.mutate(v)} />}
-      {m.error && <p role="alert" className="text-sm text-destructive">{m.error.message}</p>}
-      <p className="text-sm text-muted-foreground">New here? <Link className="text-primary underline" to="/register">Register your company</Link></p>
+      {m.error && <Notice>{m.error.message}</Notice>}
+      <p className="text-sm text-slate-500">New here? <FooterLink to="/register">Register your company</FooterLink></p>
     </AuthShell>
   )
 }
@@ -71,9 +75,9 @@ function EmailForm({ onSubmit }: { onSubmit: (v: z.infer<typeof emailLogin>) => 
   const { errors } = form.formState
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <Field label="Email" error={errors.email?.message}><Input type="email" autoComplete="email" {...form.register('email')} /></Field>
-      <Field label="Password" error={errors.password?.message}><Input type="password" autoComplete="current-password" {...form.register('password')} /></Field>
-      <Button type="submit" className="w-full">Sign in</Button>
+      <FormField label="Email" htmlFor="femail" error={errors.email?.message}><TextInput id="femail" type="email" autoComplete="email" {...form.register('email')} /></FormField>
+      <FormField label="Password" htmlFor="fpassword" error={errors.password?.message}><TextInput id="fpassword" type="password" autoComplete="current-password" {...form.register('password')} /></FormField>
+      <Button type="submit" size="lg" className="w-full">Sign in</Button>
     </form>
   )
 }
@@ -83,10 +87,10 @@ function UsernameForm({ onSubmit }: { onSubmit: (v: z.infer<typeof usernameLogin
   const { errors } = form.formState
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <Field label="Workspace" error={errors.workspace?.message}><Input placeholder="your-company" autoComplete="organization" {...form.register('workspace')} /></Field>
-      <Field label="Username" error={errors.username?.message}><Input autoComplete="username" {...form.register('username')} /></Field>
-      <Field label="Password" error={errors.password?.message}><Input type="password" autoComplete="current-password" {...form.register('password')} /></Field>
-      <Button type="submit" className="w-full">Sign in</Button>
+      <FormField label="Workspace" htmlFor="fworkspace" error={errors.workspace?.message}><TextInput id="fworkspace" placeholder="your-company" autoComplete="organization" {...form.register('workspace')} /></FormField>
+      <FormField label="Username" htmlFor="fusername" error={errors.username?.message}><TextInput id="fusername" autoComplete="username" {...form.register('username')} /></FormField>
+      <FormField label="Password" htmlFor="fpassword" error={errors.password?.message}><TextInput id="fpassword" type="password" autoComplete="current-password" {...form.register('password')} /></FormField>
+      <Button type="submit" size="lg" className="w-full">Sign in</Button>
     </form>
   )
 }
@@ -123,22 +127,20 @@ export function RegisterPage() {
   const { errors } = form.formState
   const r = form.register
   return (
-    <AuthShell title="Register your company">
+    <AuthShell title="Register your company" subtitle="Create a workspace for your team in a minute.">
       <form onSubmit={form.handleSubmit((v) => m.mutate(v))} className="space-y-4">
-        <Field label="Company name" error={errors.company_name?.message}><Input {...r('company_name')} /></Field>
-        <Field label="Workspace URL name" error={errors.company_slug?.message}><Input placeholder="acme-machining" {...r('company_slug')} /></Field>
+        <FormField label="Company name" htmlFor="fcompanyname" error={errors.company_name?.message}><TextInput id="fcompanyname" {...r('company_name')} /></FormField>
+        <FormField label="Workspace URL name" htmlFor="fworkspaceurlname" error={errors.company_slug?.message}><TextInput id="fworkspaceurlname" placeholder="acme-machining" {...r('company_slug')} /></FormField>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="First name" error={errors.first_name?.message}><Input {...r('first_name')} /></Field>
-          <Field label="Last name" error={errors.last_name?.message}><Input {...r('last_name')} /></Field>
+          <FormField label="First name" htmlFor="ffirstname" error={errors.first_name?.message}><TextInput id="ffirstname" {...r('first_name')} /></FormField>
+          <FormField label="Last name" htmlFor="flastname" error={errors.last_name?.message}><TextInput id="flastname" {...r('last_name')} /></FormField>
         </div>
-        <Field label="Work email" error={errors.email?.message}><Input type="email" autoComplete="email" {...r('email')} /></Field>
-        <Field label="Password" error={errors.password?.message}><Input type="password" autoComplete="new-password" {...r('password')} /></Field>
-        {m.error && !(m.error instanceof ApiError && Object.keys(m.error.fieldErrors).length) && (
-          <p role="alert" className="text-sm text-destructive">{m.error.message}</p>
-        )}
-        <Button type="submit" className="w-full" disabled={m.isPending}>{m.isPending ? 'Creating…' : 'Create company'}</Button>
+        <FormField label="Work email" htmlFor="fworkemail" error={errors.email?.message}><TextInput id="fworkemail" type="email" autoComplete="email" {...r('email')} /></FormField>
+        <FormField label="Password" htmlFor="fpassword" error={errors.password?.message}><TextInput id="fpassword" type="password" autoComplete="new-password" {...r('password')} /></FormField>
+        {errorText(m.error) && <Notice>{errorText(m.error)}</Notice>}
+        <Button type="submit" size="lg" className="w-full" loading={m.isPending}>Create company</Button>
       </form>
-      <p className="text-sm text-muted-foreground">Already registered? <Link className="text-primary underline" to="/login">Sign in</Link></p>
+      <p className="text-sm text-slate-500">Already registered? <FooterLink to="/login">Sign in</FooterLink></p>
     </AuthShell>
   )
 }
@@ -169,13 +171,13 @@ export function ChangePasswordPage() {
   const forced = me?.must_change_password
   return (
     <AuthShell title={forced ? 'Choose a new password' : 'Change password'}>
-      {forced && <p className="text-sm text-muted-foreground">Your administrator gave you a temporary password. Replace it to continue.</p>}
+      {forced && <p className="text-sm text-slate-500">Your administrator gave you a temporary password. Replace it to continue.</p>}
       <form onSubmit={form.handleSubmit((v) => m.mutate(v))} className="space-y-4">
-        <Field label="Current password" error={errors.current_password?.message}><Input type="password" autoComplete="current-password" {...form.register('current_password')} /></Field>
-        <Field label="New password" error={errors.new_password?.message}><Input type="password" autoComplete="new-password" {...form.register('new_password')} /></Field>
-        <Field label="Confirm new password" error={errors.confirm?.message}><Input type="password" autoComplete="new-password" {...form.register('confirm')} /></Field>
-        <Button type="submit" className="w-full" disabled={m.isPending}>{m.isPending ? 'Saving…' : 'Change password'}</Button>
-        {!forced && <Button type="button" variant="outline" className="w-full" onClick={() => nav(-1)}>Cancel</Button>}
+        <FormField label="Current password" htmlFor="fcurrentpassword" error={errors.current_password?.message}><TextInput id="fcurrentpassword" type="password" autoComplete="current-password" {...form.register('current_password')} /></FormField>
+        <FormField label="New password" htmlFor="fnewpassword" error={errors.new_password?.message}><TextInput id="fnewpassword" type="password" autoComplete="new-password" {...form.register('new_password')} /></FormField>
+        <FormField label="Confirm new password" htmlFor="fconfirmnewpassword" error={errors.confirm?.message}><TextInput id="fconfirmnewpassword" type="password" autoComplete="new-password" {...form.register('confirm')} /></FormField>
+        <Button type="submit" size="lg" className="w-full" loading={m.isPending}>Change password</Button>
+        {!forced && <Button type="button" variant="secondary" className="w-full" onClick={() => nav(-1)}>Cancel</Button>}
       </form>
     </AuthShell>
   )
@@ -212,8 +214,8 @@ export function AcceptInvitePage() {
   if (preview.isError || !preview.data) {
     return (
       <AuthShell title="Invitation unavailable">
-        <p role="alert" className="text-sm text-destructive">This invitation is invalid, expired or was withdrawn. Ask your administrator to send a new one.</p>
-        <Link className="text-sm text-primary underline" to="/login">Go to sign in</Link>
+        <Notice title="This invitation can’t be used">It is invalid, expired or was withdrawn. Ask your administrator to send a new one.</Notice>
+        <p className="text-sm"><FooterLink to="/login">Go to sign in</FooterLink></p>
       </AuthShell>
     )
   }
@@ -221,24 +223,24 @@ export function AcceptInvitePage() {
   const { errors } = form.formState
   return (
     <AuthShell title={`Join ${inv.company_name}`}>
-      <p className="text-sm text-muted-foreground">Invitation for <strong>{inv.email}</strong>.</p>
+      <p className="text-sm text-slate-500">Invitation for <strong>{inv.email}</strong>.</p>
       {inv.requires_password ? (
         <form onSubmit={form.handleSubmit((v) => accept.mutate(v.password))} className="space-y-4">
-          <Field label="Choose a password" error={errors.password?.message}><Input type="password" autoComplete="new-password" {...form.register('password')} /></Field>
-          <Field label="Confirm password" error={errors.confirm?.message}><Input type="password" autoComplete="new-password" {...form.register('confirm')} /></Field>
-          {accept.error && !errors.password && <p role="alert" className="text-sm text-destructive">{accept.error.message}</p>}
-          <Button type="submit" className="w-full" disabled={accept.isPending}>{accept.isPending ? 'Activating…' : 'Activate account'}</Button>
+          <FormField label="Choose a password" htmlFor="fchooseapassword" error={errors.password?.message}><TextInput id="fchooseapassword" type="password" autoComplete="new-password" {...form.register('password')} /></FormField>
+          <FormField label="Confirm password" htmlFor="fconfirmpassword" error={errors.confirm?.message}><TextInput id="fconfirmpassword" type="password" autoComplete="new-password" {...form.register('confirm')} /></FormField>
+          {accept.error && !errors.password && <Notice>{accept.error.message}</Notice>}
+          <Button type="submit" size="lg" className="w-full" loading={accept.isPending}>Activate account</Button>
         </form>
       ) : me?.email?.toLowerCase() === inv.email.toLowerCase() ? (
         <div className="space-y-4">
           <p className="text-sm">You already have an account. Accept to add this company to it.</p>
-          {accept.error && <p role="alert" className="text-sm text-destructive">{accept.error.message}</p>}
-          <Button className="w-full" disabled={accept.isPending} onClick={() => accept.mutate('')}>Accept invitation</Button>
+          {accept.error && <Notice>{accept.error.message}</Notice>}
+          <Button size="lg" className="w-full" loading={accept.isPending} onClick={() => accept.mutate('')}>Accept invitation</Button>
         </div>
       ) : (
         <div className="space-y-3">
           <p className="text-sm">This email already has an account. Sign in as <strong>{inv.email}</strong>, then open this link again.</p>
-          <Button asChild className="w-full"><Link to="/login">Sign in</Link></Button>
+          <Link to="/login" className={buttonClass('primary', 'lg', 'w-full')}>Sign in</Link>
         </div>
       )}
     </AuthShell>
