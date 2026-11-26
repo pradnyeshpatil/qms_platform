@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
+import { Lock } from 'lucide-react'
 import { Navigate, Outlet, useLocation, useParams } from 'react-router-dom'
 import { api, ApiError } from '@/lib/api'
 import type { Me } from '@/lib/types'
-import { Card, CardContent, Loading } from '@/components/ui/misc'
+import { Card } from '@/components/kit/card'
+import { EmptyPanel, PageLoading } from '@/components/kit/feedback'
 
 export const ME_KEY = ['me']
 
@@ -34,7 +36,7 @@ export function useCan() {
 export function RequireAuth() {
   const { data, isLoading } = useMe()
   const { pathname } = useLocation()
-  if (isLoading) return <Loading />
+  if (isLoading) return <PageLoading />
   if (!data) return <Navigate to="/login" replace />
   // Admin-issued temporary passwords must be replaced before anything else is usable.
   if (data.must_change_password && pathname !== '/change-password') return <Navigate to="/change-password" replace />
@@ -47,10 +49,7 @@ export function RequirePermission({ permission, children }: { permission: string
   if (can(permission)) return <>{children}</>
   return (
     <Card>
-      <CardContent className="p-10 text-center">
-        <h1 className="text-lg font-semibold">You don't have access to this page</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Ask a company admin if you need the “{permission}” permission.</p>
-      </CardContent>
+      <EmptyPanel icon={<Lock className="h-6 w-6" />} title="You don’t have access to this page" hint={`Ask a company admin if you need the “${permission}” permission.`} />
     </Card>
   )
 }
