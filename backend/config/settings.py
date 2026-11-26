@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     "apps.employees",
     "apps.customers",
     "apps.complaints",
+    "apps.custom_fields",
+    "apps.eight_d_reports",
+    "apps.tasks",
     "apps.audit",
     "apps.comments",
     "apps.attachments",
@@ -171,6 +174,9 @@ if ATTACHMENT_STORAGE == "s3":
     }
 ATTACHMENT_MAX_BYTES = int(env("ATTACHMENT_MAX_BYTES", str(25 * 1024 * 1024)))
 ATTACHMENT_COMPANY_QUOTA_BYTES = int(env("ATTACHMENT_COMPANY_QUOTA_BYTES", str(5 * 1024 * 1024 * 1024)))
+# Closing a complaint with unfinished 8D reports / tasks: warn (False) or refuse (True). Per-company switch in Phase 5.
+EIGHT_D_BLOCKS_COMPLAINT_CLOSURE = env("EIGHT_D_BLOCKS_COMPLAINT_CLOSURE", "false").lower() == "true"
+TASKS_BLOCK_COMPLAINT_CLOSURE = env("TASKS_BLOCK_COMPLAINT_CLOSURE", "false").lower() == "true"
 EXPORT_XLSX_MAX_ROWS = int(env("EXPORT_XLSX_MAX_ROWS", "20000"))
 COMMENT_EDIT_WINDOW_MINUTES = int(env("COMMENT_EDIT_WINDOW_MINUTES", "15"))
 

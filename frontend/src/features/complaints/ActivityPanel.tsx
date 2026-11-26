@@ -28,12 +28,12 @@ export function ActivityItem({ e, index }: { e: ActivityEntry; index: number }) 
   )
 }
 
-export function ActivityPanel({ complaintId, limit }: { complaintId: string; limit?: number }) {
+export function ActivityPanel({ complaintId, limit, targetType = 'complaint' }: { complaintId: string; limit?: number; targetType?: string }) {
   const slug = useSlug()
   const q = useInfiniteQuery({
     queryKey: [slug, 'activity', complaintId],
     initialPageParam: 1,
-    queryFn: ({ pageParam }) => api<Page<ActivityEntry>>(tenantPath(slug, `activity/${targetQuery(complaintId, { page: pageParam, page_size: 20 })}`)),
+    queryFn: ({ pageParam }) => api<Page<ActivityEntry>>(tenantPath(slug, `activity/${targetQuery(complaintId, { page: pageParam, page_size: 20 }, targetType)}`)),
     getNextPageParam: (last, all) => (last.next ? all.length + 1 : undefined),
   })
   const items = q.data?.pages.flatMap((p) => p.results) ?? []
@@ -41,7 +41,7 @@ export function ActivityPanel({ complaintId, limit }: { complaintId: string; lim
   return (
     <Card className="p-5">
       {q.isLoading ? <ListSkeleton rows={3} /> : q.isError ? <ErrorPanel error={q.error} onRetry={() => q.refetch()} /> : shown.length === 0 ? (
-        <EmptyPanel title="Nothing recorded yet" hint="Every change to this complaint will appear here." />
+        <EmptyPanel title="Nothing recorded yet" hint="Every change to this record will appear here." />
       ) : (
         <>
           <ol>{shown.map((e, i) => <ActivityItem key={e.id} e={e} index={i} />)}</ol>

@@ -6,11 +6,12 @@ Status of `PROJECT_SPEC.md` §26. Each phase ends with green tests, updated docs
 |---|---|
 | 0 Architecture & planning | **Done** — `docs/*` (written retrospectively alongside Phase 1) |
 | 1 Foundation | **Done** — see below |
-| 2 Core complaints | **Done** (backend + frontend in the new design + unit tests). Playwright E2E in CI is still open |
-| 3 8D reporting | Not started |
-| 4 Advanced (custom fields, Celery reminders, notifications, audit UI, share links) | Not started |
+| 2 Core complaints | **Done** (backend + frontend in the new design, unified Phase 1 pages, unit tests) |
+| 3 8D reporting | **In progress** — backend and frontend done (156 backend + 39 frontend tests green); PDF export next. See `PHASE_3_PLAN.md` |
+| 4 Advanced (custom fields [8D reports done early, see Phase 3], Celery reminders, notifications, audit UI, share links) | Not started |
 | 5 Platform administration | Not started |
 | 6 Production readiness | Not started |
+| Final polish pass | Planned for after the main features: Playwright E2E suite in CI, JS bundle code-splitting (single chunk > 500 kB), dark mode |
 
 ## Phase 1 — delivered
 
@@ -70,5 +71,12 @@ envelope (`fields`, `message`, `code`, `request_id`) and keeps working with the 
 Verified by driving the real app with a headless browser (create → comment → upload → assign → close/reopen → settings → audit, plus
 viewer and engineer permission checks and a phone-width pass) on a throwaway database copy; Vitest covers the pure logic and components.
 
-Still open: Playwright E2E suite checked into the repo + CI, migrating the remaining pages (customers, employees, roles, organisation,
-auth) to the kit, code-splitting the JS bundle (single chunk > 500 kB), dark mode.
+Remaining pages (customers, employees, roles, organisation, auth) were migrated to the kit in PR #3 (`feature/uniform-ui`).
+Playwright E2E, bundle code-splitting and dark mode are deliberately deferred to the final polish pass (see the table above).
+
+## Phase 3 backend — delivered
+
+`apps/eight_d_reports` and `apps/tasks`; plan and decisions in `PHASE_3_PLAN.md`, endpoints in `API_DESIGN.md`.
+New permission `eight_d_reports.reopen` (migration `rbac/0002` grants it to existing Company Admin / Quality Manager roles).
+New settings: `EIGHT_D_BLOCKS_COMPLAINT_CLOSURE`, `TASKS_BLOCK_COMPLAINT_CLOSURE` (default false = warn only).
+Phase 3 frontend: `features/eight-d` (list, editor with D0-D8, workflow/approval, snapshots) and `features/tasks`; complaint detail gained 8D and Tasks tabs. Still open in Phase 3: PDF export (3.4).

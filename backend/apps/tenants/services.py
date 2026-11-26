@@ -18,7 +18,7 @@ DEFAULT_DEPARTMENTS = ["Quality", "Production", "Engineering", "Maintenance", "L
 def seed_company_defaults(company: Company) -> dict:
     """Default workspace content: system roles, the main plant, standard departments.
 
-    TODO(later phases): 8D statuses (Phase 3), subscription row (Phase 5).
+    The 8D lifecycle is a fixed enum (nothing to seed per company). TODO(Phase 5): subscription row.
     """
     from apps.complaints.services import seed_company_config
 

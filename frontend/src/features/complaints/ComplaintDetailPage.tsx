@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { ArrowLeft, Activity, ClipboardList, MessageSquare, MoreHorizontal, Paperclip, Pencil, Trash2, UserPlus } from 'lucide-react'
+import { ArrowLeft, Activity, ClipboardList, FileText, ListTodo, MessageSquare, MoreHorizontal, Paperclip, Pencil, Trash2, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -15,6 +15,8 @@ import { api, ApiError, tenantPath } from '@/lib/api'
 import { dateTime, shortDate } from '@/lib/format'
 import { SOURCE_LABEL, type Attachment, type Comment, type Page } from '@/lib/types'
 import { useCan } from '@/features/auth/auth'
+import { ComplaintReports } from '@/features/eight-d/ComplaintReports'
+import { TasksPanel } from '@/features/tasks/TasksPanel'
 import { useSlug } from '@/layout/AppLayout'
 import { targetQuery, useComplaint, useRefreshComplaint, useStatuses } from './api'
 import { ActivityPanel } from './ActivityPanel'
@@ -26,7 +28,7 @@ import { FilesPanel } from './FilesPanel'
 import { DueLabel, Fact } from './parts'
 import { StatusStepper } from './StatusStepper'
 
-type Tab = 'overview' | 'comments' | 'files' | 'activity'
+type Tab = 'overview' | 'eight-d' | 'tasks' | 'comments' | 'files' | 'activity'
 
 function DetailSkeleton() {
   return (
@@ -126,6 +128,8 @@ export function ComplaintDetailPage() {
         <div className="min-w-0 space-y-5">
           <TabBar<Tab> value={tab} onChange={setTab} tabs={[
             { value: 'overview', label: 'Overview', icon: <ClipboardList className="h-4 w-4" /> },
+            { value: 'eight-d', label: '8D reports', icon: <FileText className="h-4 w-4" /> },
+            { value: 'tasks', label: 'Tasks', icon: <ListTodo className="h-4 w-4" /> },
             { value: 'comments', label: 'Comments', icon: <MessageSquare className="h-4 w-4" />, count: counts.data?.comments },
             { value: 'files', label: 'Files', icon: <Paperclip className="h-4 w-4" />, count: counts.data?.files },
             { value: 'activity', label: 'Activity', icon: <Activity className="h-4 w-4" /> },
@@ -146,6 +150,8 @@ export function ComplaintDetailPage() {
               </div>
             </div>
           )}
+          {tab === 'eight-d' && <ComplaintReports complaintId={c.id} />}
+          {tab === 'tasks' && <TasksPanel complaintId={c.id} />}
           {tab === 'comments' && <CommentsPanel complaintId={c.id} />}
           {tab === 'files' && <FilesPanel complaintId={c.id} />}
           {tab === 'activity' && <ActivityPanel complaintId={c.id} />}

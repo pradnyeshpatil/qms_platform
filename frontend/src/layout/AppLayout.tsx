@@ -2,7 +2,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'motion/react'
 import {
-  Building2, ChevronsUpDown, ClipboardList, KeyRound, LayoutDashboard, LogOut, Menu as MenuIcon, ScrollText,
+  Building2, ChevronsUpDown, ClipboardList, FileText, ListTodo, KeyRound, LayoutDashboard, LogOut, Menu as MenuIcon, ScrollText,
   ShieldCheck, SlidersHorizontal, UserCog, Users, X,
 } from 'lucide-react'
 import * as React from 'react'
@@ -87,6 +87,8 @@ export function AppLayout() {
       items: [
         { to: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, show: can('complaints.view') },
         { to: 'complaints', label: 'Complaints', icon: ClipboardList, show: can('complaints.view') },
+        { to: 'eight-d', label: '8D reports', icon: FileText, show: can('eight_d_reports.view') },
+        { to: 'tasks', label: 'Tasks', icon: ListTodo, show: can('tasks.view') },
         { to: 'customers', label: 'Customers', icon: Users, show: can('customers.view') },
       ],
     },
@@ -102,6 +104,7 @@ export function AppLayout() {
       title: 'Admin',
       items: [
         { to: 'settings/complaints', label: 'Complaint settings', icon: SlidersHorizontal, show: can('settings.manage') },
+        { to: 'settings/custom-fields', label: 'Custom fields', icon: SlidersHorizontal, show: can('custom_fields.manage') },
         { to: 'audit', label: 'Audit log', icon: ScrollText, show: can('audit.view') },
       ],
     },

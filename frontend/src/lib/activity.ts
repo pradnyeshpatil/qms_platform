@@ -74,7 +74,44 @@ export function describeActivity(e: Pick<ActivityEntry, 'action' | 'changes' | '
     case 'complaint_status.deleted':
       return { kind: 'settings', text: `deleted the status “${e.target_label}”` }
     default:
-      return { kind: 'edit', text: e.action.replace(/[._]/g, ' ') }
+      return describeEightD(e) ?? { kind: 'edit', text: e.action.replace(/[._]/g, ' ') }
+  }
+}
+
+const SECTION_NAME: Record<string, string> = {
+  D0: 'D0 Prepare', D1: 'D1 Team', D2: 'D2 Problem', D3: 'D3 Containment', D4: 'D4 Root cause',
+  D5: 'D5 Corrective actions', D6: 'D6 Validation', D7: 'D7 Prevention', D8: 'D8 Closure',
+}
+const sectionName = (v: unknown) => SECTION_NAME[String(v)] ?? String(v ?? 'a section')
+
+/** 8D report and task entries (Phase 3). Returns undefined for anything else. */
+function describeEightD(e: Pick<ActivityEntry, 'action' | 'changes' | 'target_label'>): Described | undefined {
+  const c = (e.changes ?? {}) as Record<string, unknown>
+  switch (e.action) {
+    case 'eight_d.created': return { kind: 'create', text: `started 8D report ${e.target_label}` }
+    case 'eight_d.updated': return { kind: 'edit', text: 'edited the report details', detail: Object.keys(c).map(fieldLabel).join(', ') }
+    case 'eight_d.section_updated': return { kind: 'edit', text: `edited ${sectionName(c.section)}` }
+    case 'eight_d.row_added': return { kind: 'create', text: `added an item to ${sectionName(c.section)}` }
+    case 'eight_d.row_updated': return { kind: 'edit', text: `edited an item in ${sectionName(c.section)}` }
+    case 'eight_d.row_removed': return { kind: 'delete', text: `removed an item from ${sectionName(c.section)}` }
+    case 'eight_d.section_completed': return { kind: 'close', text: `completed ${sectionName(c.section)}` }
+    case 'eight_d.section_status_changed': return { kind: 'status', text: `changed the status of ${sectionName(c.section)}` }
+    case 'eight_d.section_owner_changed': return { kind: 'assign', text: `changed the owner of ${sectionName(c.section)}` }
+    case 'eight_d.approval_requested': return { kind: 'status', text: 'sent the report for approval' }
+    case 'eight_d.approved': return { kind: 'close', text: 'approved the report', detail: strOrUndef(c.comment) }
+    case 'eight_d.rejected': return { kind: 'reopen', text: 'rejected the report', detail: strOrUndef(c.comment) }
+    case 'eight_d.submitted': return { kind: 'export', text: `recorded the report as sent to ${str(c.recipient)}` }
+    case 'eight_d.closed': return { kind: 'close', text: 'closed the report' }
+    case 'eight_d.reopened': return { kind: 'reopen', text: 'reopened the report', detail: strOrUndef(c.reason) }
+    case 'eight_d.deleted': return { kind: 'delete', text: 'deleted the draft report' }
+    case 'eight_d.task_created': return { kind: 'assign', text: `created a task from ${sectionName(c.section)}`, detail: strOrUndef(c.task) }
+    case 'task.created': return { kind: 'create', text: 'created the task' }
+    case 'task.updated': return { kind: 'edit', text: 'edited the task' }
+    case 'task.reassigned': return { kind: 'assign', text: `reassigned the task to ${str(asChange(c.assignee).to)}` }
+    case 'task.completed': return { kind: 'close', text: 'completed the task' }
+    case 'task.reopened': return { kind: 'reopen', text: 'reopened the task' }
+    case 'task.status_changed': return { kind: 'status', text: `moved the task to ${str(asChange(c.status).to)}` }
+    case 'task.deleted': return { kind: 'delete', text: 'deleted the task' }
   }
 }
 
